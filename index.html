@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Kalkulator Full Layar ✨</title>
+  <style>
+    :root {
+      --accent: #007bff;
+      --opcolor: #4da3ff;
+      --bg-url: url('https://files.catbox.moe/xsakkl.jpg');
+    }
+    * { box-sizing: border-box; font-family: "Poppins", sans-serif; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    body {
+      background: var(--bg-url) center/cover no-repeat fixed;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* LOGIN */
+    .login-screen {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.35);
+      backdrop-filter: blur(5px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 10;
+    }
+    .login-box {
+      background: rgba(255, 255, 255, 0.2);
+      padding: 30px;
+      border-radius: 20px;
+      width: 300px;
+      text-align: center;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+      color: #fff;
+    }
+    .login-box input {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      border-radius: 10px;
+      border: none;
+      font-size: 16px;
+      text-align: center;
+      outline: none;
+    }
+    .login-box button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      border-radius: 10px;
+      border: none;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .login-error {
+      display: none;
+      color: #ff8080;
+      margin-top: 10px;
+    }
+
+    /* KALKULATOR */
+    .calc-shell {
+      position: absolute;
+      inset: 0;
+      display: none;
+      flex-direction: column;
+      justify-content: flex-end;
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(4px);
+    }
+
+    .calc-card {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 20px;
+      background: transparent;
+    }
+
+    .top-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .top-controls button {
+      background: rgba(0, 0, 0, 0.4);
+      color: #fff;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    /* DISPLAY */
+    .display-wrap {
+      text-align: right;
+      color: inherit;
+      font-size: 64px;
+      font-weight: 600;
+      padding: 10px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* RIWAYAT */
+    .history {
+      max-height: 130px;
+      overflow-y: auto;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 10px;
+      padding: 8px 12px;
+      margin-top: 10px;
+      font-size: 16px;
+    }
+    .history-entry {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 4px 0;
+    }
+    .clear-history {
+      background: rgba(255, 50, 50, 0.7);
+      border: none;
+      border-radius: 10px;
+      color: #fff;
+      padding: 6px 10px;
+      font-size: 13px;
+      cursor: pointer;
+      margin-top: 5px;
+    }
+
+    /* KEYBOARD */
+    .keys {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-top: 15px;
+    }
+    .key {
+      height: 80px;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.8);
+      color: #fff;
+      font-size: 26px;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.45);
+      transition: transform 0.08s, background 0.15s;
+    }
+    .key:active { transform: scale(0.93); }
+    .key.op { color: var(--opcolor); background: rgba(255, 255, 255, 0.12); }
+    .key.equal { background: var(--accent); color: #fff; }
+    .key.clear { color: #ff5757; background: rgba(255, 255, 255, 0.15); }
+
+    @media (max-width: 360px) {
+      .key { height: 70px; font-size: 22px; }
+      .display-wrap { font-size: 50px; }
+    }
+  </style>
+</head>
+<body>
+  <!-- LOGIN -->
+  <div class="login-screen" id="loginScreen">
+    <div class="login-box">
+      <h2>🔐 Login Kalkulator</h2>
+      <input type="text" id="username" placeholder="Username" autocomplete="off">
+      <input type="password" id="password" placeholder="Password" autocomplete="off">
+      <button id="btnLogin">Masuk</button>
+      <p id="loginError" class="login-error">Username atau password salah!</p>
+      <p style="margin-top:10px;font-size:13px;opacity:.85;color:#ddd">
+        User: <b>Kalkulator1</b> | Pass: <b>11</b>
+      </p>
+    </div>
+  </div>
+
+  <!-- KALKULATOR -->
+  <div class="calc-shell" id="calcShell">
+    <div class="calc-card" id="calcCard">
+      <div class="top-controls">
+        <button id="btnTheme">🌗 Tema</button>
+        <div>
+          <button id="btnClearHistory" class="clear-history">🧹 Hapus Riwayat</button>
+          <button id="btnLogout">🚪 Logout</button>
+        </div>
+      </div>
+
+      <div class="display-wrap" id="display">0</div>
+
+      <div class="history" id="history"></div>
+
+      <div class="keys" id="keys">
+        <button class="key clear" data-key="C">C</button>
+        <button class="key op" data-key="%">%</button>
+        <button class="key" data-key="back">⌫</button>
+        <button class="key op" data-key="/">÷</button>
+
+        <button class="key" data-key="7">7</button>
+        <button class="key" data-key="8">8</button>
+        <button class="key" data-key="9">9</button>
+        <button class="key op" data-key="*">×</button>
+
+        <button class="key" data-key="4">4</button>
+        <button class="key" data-key="5">5</button>
+        <button class="key" data-key="6">6</button>
+        <button class="key op" data-key="-">−</button>
+
+        <button class="key" data-key="1">1</button>
+        <button class="key" data-key="2">2</button>
+        <button class="key" data-key="3">3</button>
+        <button class="key op" data-key="+">+</button>
+
+        <button class="key" data-key="00">00</button>
+        <button class="key" data-key="0">0</button>
+        <button class="key" data-key=",">,</button>
+        <button class="key equal" data-key="=">=</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const USER = "Kalkulator1";
+    const PASS = "11";
+
+    const loginScreen = document.getElementById("loginScreen");
+    const calcShell = document.getElementById("calcShell");
+    const display = document.getElementById("display");
+    const btnLogin = document.getElementById("btnLogin");
+    const btnLogout = document.getElementById("btnLogout");
+    const btnTheme = document.getElementById("btnTheme");
+    const loginError = document.getElementById("loginError");
+    const historyBox = document.getElementById("history");
+    const btnClearHistory = document.getElementById("btnClearHistory");
+
+    let currentExpression = "";
+    let themeDark = true;
+    let history = [];
+
+    btnLogin.onclick = () => {
+      const u = document.getElementById("username").value.trim();
+      const p = document.getElementById("password").value.trim();
+      if (u === USER && p === PASS) {
+        loginScreen.style.display = "none";
+        calcShell.style.display = "flex";
+      } else {
+        loginError.style.display = "block";
+      }
+    };
+
+    btnLogout.onclick = () => {
+      calcShell.style.display = "none";
+      loginScreen.style.display = "flex";
+      document.getElementById("username").value = "";
+      document.getElementById("password").value = "";
+      display.textContent = "0";
+      currentExpression = "";
+      history = [];
+      renderHistory();
+    };
+
+    btnTheme.onclick = () => {
+      themeDark = !themeDark;
+      document.body.style.filter = themeDark ? "brightness(100%)" : "brightness(115%)";
+    };
+
+    btnClearHistory.onclick = () => {
+      history = [];
+      renderHistory();
+    };
+
+    function formatNumber(num) {
+      const parts = num.toString().split(".");
+      parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+      return parts.join(",");
+    }
+
+    function refreshDisplay() {
+      display.textContent = currentExpression === "" ? "0" : currentExpression.replace(/\./g, ",");
+    }
+
+    function renderHistory() {
+      historyBox.innerHTML = history.length === 0
+        ? "<em>Belum ada riwayat...</em>"
+        : history.map(h => `<div class='history-entry'>${h}</div>`).join("");
+    }
+
+    function pressKey(key) {
+      if (key === "C") { currentExpression = ""; refreshDisplay(); return; }
+      if (key === "back") { currentExpression = currentExpression.slice(0, -1); refreshDisplay(); return; }
+      if (key === "=") {
+        try {
+          const expr = currentExpression.replace(/,/g, ".").replace(/×/g, "*").replace(/÷/g, "/");
+          const result = Function('"use strict";return (' + expr + ')')();
+          const formatted = formatNumber(result);
+          history.unshift(`${currentExpression} = ${formatted}`);
+          if (history.length > 10) history.pop();
+          renderHistory();
+          currentExpression = formatted;
+          refreshDisplay();
+        } catch {
+          display.textContent = "Error";
+          currentExpression = "";
+        }
+        return;
+      }
+      currentExpression += key;
+      refreshDisplay();
+    }
+
+    document.getElementById("keys").addEventListener("click", (e) => {
+      const k = e.target.getAttribute("data-key");
+      if (k) pressKey(k);
+    });
+
+    renderHistory();
+  </script>
+</body>
+</html>
